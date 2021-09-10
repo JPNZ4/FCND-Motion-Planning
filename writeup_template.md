@@ -26,6 +26,9 @@ You're reading it! Below I describe how I addressed each rubric point and where 
 
 ### Explain the Starter Code
 
+The motion_planning.py script contains the MotionPlanning class which implements callbacks for position, velocity, and state. Inside these callbacks the class handles the transition between different states. These callbacks also call path_plan() which is a function that reads a file to create a grid containing obstacles. It uses the A* search algorithm to plan a path from the start to end goal through the grid. In comparison the backyard_flyer_solution.py script contains the same callbacks as motion_planning.py but it just creates a box path to fly with no consideration for obstacles.
+The planning_utils.py script contains helper functions which are used in the motion_planning.py script. It contains functions to create a grid, check if actions are valid and the A* search algorithm.
+
 #### 1. Explain the functionality of what's provided in `motion_planning.py` and `planning_utils.py`
 These scripts contain a basic planning implementation that includes...
 
