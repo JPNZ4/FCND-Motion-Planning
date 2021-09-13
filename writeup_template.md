@@ -32,24 +32,30 @@ The planning_utils.py script contains helper functions which are used in the mot
 ### Implementing Your Path Planning Algorithm
 
 #### 1. Set your global home position
-Here students should read the first line of the csv file, extract lat0 and lon0 as floating point values and use the self.set_home_position() method to set global home. Explain briefly how you accomplished this in your code.
+To start the path planning from anywhere in the world the home position needs to be set from any given location. I have used the csv reader function to read the csv file and then extract the first line which contains the lat0 and lon0 values. Once the value are obtained I used self.set_home_position() with the extracted values to set the home position.
 
 #### 2. Set your current local position
-Here as long as you successfully determine your local position relative to global home you'll be all set. Explain briefly how you accomplished this in your code.
+I have used the global_to_local fucntion by passing in the global position and global home values which uses that information to produce the local coordinates. I have achieved this in one line on line #136 in motion_planning.py.
 
 #### 3. Set grid start position from local position
-This is another step in adding flexibility to the start location. As long as it works you're good to go!
+The original code hard coded the start position as the map centre, I have changed this to use the current local position by using the local_pos values.
 
 #### 4. Set grid goal position from geodetic coords
-This step is to add flexibility to the desired goal location. Should be able to choose any (lat, lon) within the map and have it rendered to a goal location on the grid.
+I added the ability to enter parameters for goal_lat, goal_lon and goal_alt. This enables the user to choose and coordiantes they want when running the script. These values are stored in input_goal variable which is then converted into local coordinates and the grid_goal variable is then updated.
 
 #### 5. Modify A* to include diagonal motion (or replace A* altogether)
-Minimal requirement here is to modify the code in planning_utils() to update the A* implementation to include diagonal motions on the grid that have a cost of sqrt(2), but more creative solutions are welcome. Explain the code you used to accomplish this step.
+I have added the diagonal directions (NE, SE, SW, NW) to the action Enum. The actions also contain how the action moves, they move a value in each direction as opposed to the original actions which only move one value in one direction. The cost of these actions is the sqrt of 2 as opposed to one for the original actions. Then in the valid_actions function I have added more if statements that will detect if one of the new diagonal actions needs to be applied.
 
 #### 6. Cull waypoints 
-For this step you can use a collinearity test or ray tracing method like Bresenham. The idea is simply to prune your path of unnecessary waypoints. Explain the code you used to accomplish this step.
+The path returned by the A* search contains many small steps to reach the goal. I implemented a collinearity test to cull some points from the path so the drone can reach the goal in a more efficient manner. The collinearity test will loop through the points in the path and if it detects that 3 points are in a line it will delete the middle point to make the path straighter. This has mixed results, sometimes it makes a nice direct path, and other times it still has some parts of the path that are close together zig zag points.
 
+Below are two images showing the use of culling the waypoints and without the culling.
 
+No Culling
+![No Culling Image](./misc/no_culling.png)
+
+With Culling
+![With Culling Image](./misc/with_culling.png)
 
 ### Execute the flight
 #### 1. Does it work?
