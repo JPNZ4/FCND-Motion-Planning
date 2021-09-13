@@ -25,13 +25,14 @@ class States(Enum):
 
 class MotionPlanning(Drone):
 
-    def __init__(self, connection):
+    def __init__(self, connection, input_goal=None):
         super().__init__(connection)
 
         self.target_position = np.array([0.0, 0.0, 0.0])
         self.waypoints = []
         self.in_mission = True
         self.check_state = {}
+        self.input_goal = input_goal
 
         # initial state
         self.flight_state = States.MANUAL
@@ -150,9 +151,7 @@ class MotionPlanning(Drone):
         # Set goal as some arbitrary position on the grid
         
         # adapt to set goal as latitude / longitude position and convert
-        grid_goal_global = [-122.397456, 37.792866, 0]
-        
-        grid_goals = global_to_local(grid_goal_global, self.global_home)
+        grid_goals = global_to_local(input_goal, self.global_home)
         grid_goal = (int(grid_goals[0]) - north_offset,  int(grid_goals[1]) - east_offset)
 
         # Run A* to find a path from start to goal
@@ -186,8 +185,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, default=5760, help='Port number')
     parser.add_argument('--host', type=str, default='127.0.0.1', help="host address, i.e. '127.0.0.1'")
+    parser.add_argument('--goal_lat', type=float, default=-122.397456, help="Latitude goal")
+    parser.add_argument('--goal_lon', type=float, default=37.792866, help="Longitude goal")
+    parser.add_argument('--goal_alt', type=float, default=0.0, help="Altitude goal")
+    
     args = parser.parse_args()
-
+    input_goal = [args.goal_lat, args.goal_lon, args.goal_alt]
     conn = MavlinkConnection('tcp:{0}:{1}'.format(args.host, args.port), timeout=60)
     drone = MotionPlanning(conn)
     time.sleep(1)
